@@ -15,7 +15,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 40px;
   }
 
   .calculator {
@@ -23,14 +23,14 @@
     max-width: 700px;
     background: #1b1b1b;
     border-radius: 25px;
-    padding: 30px;
+    padding: 40px 50px;
     box-shadow: 0 0 15px #1db954, 0 0 20px #ff4c4c;
   }
 
-  h2 { text-align: center; margin-bottom: 8px; color: #1db954; font-size: 28px; letter-spacing: 0.5px; }
-  .subtitle { text-align: center; font-size: 16px; opacity: 0.85; margin-bottom: 20px; color: #ff4c4c; }
+  h2 { text-align: center; margin-bottom: 12px; color: #1db954; font-size: 28px; letter-spacing: 0.5px; }
+  .subtitle { text-align: center; font-size: 16px; opacity: 0.85; margin-bottom: 30px; color: #ff4c4c; }
 
-  label { font-size: 16px; margin-top: 15px; display: block; opacity: 0.9; }
+  label { font-size: 16px; margin-top: 20px; display: block; opacity: 0.9; }
   select, input {
     width: 100%;
     padding: 14px;
@@ -56,25 +56,54 @@
     transition: transform 0.1s;
   }
   #calculateBtn { background: #1db954; color: #000; }
-  #startTimerBtn { background: #ff4c4c; color: #fff; margin-top: 10px; }
+  #startTimerBtn { background: #ff4c4c; color: #fff; margin-top: 12px; }
   button:active { transform: scale(0.97); }
 
-  .result, .timer {
-    margin-top: 20px;
+  .result {
+    margin-top: 24px;
     background: #2a2a2a;
     border-radius: 16px;
-    padding: 14px;
+    padding: 16px;
     text-align: center;
     font-size: 20px;
     font-weight: bold;
     color: #1db954;
+  }
+
+  .timer-container {
+    margin-top: 20px;
+    background: #2a2a2a;
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .timer-text {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff4c4c;
+    margin-bottom: 8px;
     transition: color 0.3s ease;
   }
-  .timer { color: #ff4c4c; }
 
-  .footer { margin-top: 12px; text-align: center; font-size: 13px; opacity: 0.6; }
+  .progress-bar {
+    width: 100%;
+    background: #3c3c3c;
+    height: 18px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #1db954;
+    border-radius: 12px;
+    transition: width 0.5s linear;
+  }
 
-  .tips { background: #2a2a2a; padding: 16px; border-radius: 16px; margin-top: 22px; font-size: 14px; }
+  .footer { margin-top: 20px; text-align: center; font-size: 13px; opacity: 0.6; }
+
+  .tips { background: #2a2a2a; padding: 16px; border-radius: 16px; margin-top: 30px; font-size: 14px; }
   .tips h3 { margin: 0 0 8px 0; color: #1db954; font-size: 16px; }
   .tips ul { padding-left: 22px; margin: 0; }
   .tips li { margin-bottom: 6px; }
@@ -85,7 +114,7 @@
     .subtitle { font-size: 14px; }
     select, input { font-size: 16px; padding: 12px; }
     button { font-size: 16px; padding: 14px; }
-    .result, .timer { font-size: 18px; padding: 12px; }
+    .result, .timer-text { font-size: 18px; }
     .tips { font-size: 13px; padding: 12px; }
   }
 </style>
@@ -111,7 +140,13 @@
   <button id="startTimerBtn" onclick="startCountdown()">START TIMER</button>
 
   <div class="result" id="result">Profit: —</div>
-  <div class="timer" id="countdown">⏱ Crop Ready In: —</div>
+
+  <div class="timer-container">
+    <div class="timer-text" id="countdown">⏱ Crop Ready In: —</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
 
   <div class="tips">
     <h3>💡 Tips & Tricks</h3>
@@ -127,8 +162,9 @@
 </div>
 
 <script>
-  let cropTimeHours = 0; 
+  let cropTimeHours = 0;
   let countdownInterval;
+  let totalSecondsGlobal = 0;
 
   function updateInputFields() {
     const crop = document.getElementById('crop').value;
@@ -149,6 +185,7 @@
       `;
     }
     document.getElementById('countdown').textContent = '⏱ Crop Ready In: —';
+    document.getElementById('progressFill').style.width = '0%';
   }
 
   function calculate() {
@@ -182,32 +219,40 @@
 
     result.textContent = `Profit: ${Math.floor(profit).toLocaleString()}`;
     document.getElementById('countdown').textContent = '⏱ Crop Ready In: —';
+    document.getElementById('progressFill').style.width = '0%';
   }
 
   function startCountdown() {
     if (cropTimeHours <= 0) return;
-    let totalSeconds = Math.floor(cropTimeHours * 3600);
+    totalSecondsGlobal = Math.floor(cropTimeHours * 3600);
+    let remaining = totalSecondsGlobal;
     const countdownElement = document.getElementById('countdown');
+    const progressFill = document.getElementById('progressFill');
     clearInterval(countdownInterval);
 
     countdownInterval = setInterval(() => {
-      const h = Math.floor(totalSeconds / 3600);
-      const m = Math.floor((totalSeconds % 3600) / 60);
-      const s = totalSeconds % 60;
+      const h = Math.floor(remaining / 3600);
+      const m = Math.floor((remaining % 3600) / 60);
+      const s = remaining % 60;
       countdownElement.textContent = `⏱ Crop Ready In: ${h}h ${m}m ${s}s`;
 
-      // Flash red if less than 1 minute
-      if (totalSeconds <= 60) {
-        countdownElement.style.color = totalSeconds % 2 === 0 ? '#ff4c4c' : '#ffffff';
+      // Progress bar update
+      const percent = ((totalSecondsGlobal - remaining) / totalSecondsGlobal) * 100;
+      progressFill.style.width = `${percent}%`;
+
+      // Flash red if < 1 minute
+      if (remaining <= 60) {
+        countdownElement.style.color = remaining % 2 === 0 ? '#ff4c4c' : '#ffffff';
       } else {
         countdownElement.style.color = '#ff4c4c';
       }
 
-      totalSeconds--;
-      if (totalSeconds < 0) {
+      remaining--;
+      if (remaining < 0) {
         clearInterval(countdownInterval);
         countdownElement.textContent = '✅ Ready!';
         countdownElement.style.color = '#1db954';
+        progressFill.style.width = '100%';
       }
     }, 1000);
   }
