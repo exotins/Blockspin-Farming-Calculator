@@ -1,75 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Blockspin Farming Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Blockspin Farming Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * { box-sizing: border-box; font-family: "Arial Rounded MT Bold", Arial, sans-serif; }
-    body {
-      margin: 0;
-      background: linear-gradient(180deg, #1a1a1a, #0b0b0b);
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
-    }
-    .calculator {
-      width: 100%;
-      max-width: 400px;
-      background: #1b1b1b;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 10px #1db954, 0 0 20px #ff4c4c;
-    }
-    h2 { text-align: center; margin-bottom: 6px; color: #1db954; font-size: 22px; letter-spacing: 0.5px; }
-    .subtitle { text-align: center; font-size: 13px; opacity: 0.8; margin-bottom: 15px; color: #ff4c4c; }
-    label { font-size: 14px; margin-top: 12px; display: block; opacity: 0.85; }
-    select, input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      background: #2b2b2b;
-      border: 2px solid #3c3c3c;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 16px;
-    }
-    .time-inputs { display: flex; gap: 10px; margin-top: 6px; }
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px;
-      font-size: 17px;
-      font-weight: bold;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    #calculateBtn { background: #1db954; color: #000; }
-    #startTimerBtn { background: #ff4c4c; color: #fff; margin-top: 8px; }
-    button:active { transform: scale(0.97); }
-    .result, .timer {
-      margin-top: 18px;
-      background: #2a2a2a;
-      border-radius: 14px;
-      padding: 12px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #1db954;
-    }
-    .timer { color: #ff4c4c; }
-    .footer { margin-top: 10px; text-align: center; font-size: 12px; opacity: 0.6; }
-    .tips { background: #2a2a2a; padding: 12px; border-radius: 14px; margin-top: 16px; font-size: 13px; }
-    .tips h3 { margin: 0 0 6px 0; color: #1db954; font-size: 15px; }
-    .tips ul { padding-left: 20px; margin: 0; }
-    .tips li { margin-bottom: 4px; }
-  </style>
+<style>
+  * { box-sizing: border-box; font-family: "Arial Rounded MT Bold", Arial, sans-serif; }
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, #1a1a1a, #0b0b0b);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .calculator {
+    width: 100%;
+    max-width: 700px;
+    background: #1b1b1b;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 0 15px #1db954, 0 0 20px #ff4c4c;
+  }
+
+  h2 { text-align: center; margin-bottom: 8px; color: #1db954; font-size: 28px; letter-spacing: 0.5px; }
+  .subtitle { text-align: center; font-size: 16px; opacity: 0.85; margin-bottom: 20px; color: #ff4c4c; }
+
+  label { font-size: 16px; margin-top: 15px; display: block; opacity: 0.9; }
+  select, input {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    background: #2b2b2b;
+    border: 2px solid #3c3c3c;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 18px;
+  }
+
+  .time-inputs { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  #calculateBtn { background: #1db954; color: #000; }
+  #startTimerBtn { background: #ff4c4c; color: #fff; margin-top: 10px; }
+  button:active { transform: scale(0.97); }
+
+  .result, .timer {
+    margin-top: 20px;
+    background: #2a2a2a;
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1db954;
+    transition: color 0.3s ease;
+  }
+  .timer { color: #ff4c4c; }
+
+  .footer { margin-top: 12px; text-align: center; font-size: 13px; opacity: 0.6; }
+
+  .tips { background: #2a2a2a; padding: 16px; border-radius: 16px; margin-top: 22px; font-size: 14px; }
+  .tips h3 { margin: 0 0 8px 0; color: #1db954; font-size: 16px; }
+  .tips ul { padding-left: 22px; margin: 0; }
+  .tips li { margin-bottom: 6px; }
+
+  @media (max-width: 600px) {
+    .calculator { padding: 20px; }
+    h2 { font-size: 24px; }
+    .subtitle { font-size: 14px; }
+    select, input { font-size: 16px; padding: 12px; }
+    button { font-size: 16px; padding: 14px; }
+    .result, .timer { font-size: 18px; padding: 12px; }
+    .tips { font-size: 13px; padding: 12px; }
+  }
+</style>
 </head>
 <body>
 
@@ -108,7 +127,7 @@
 </div>
 
 <script>
-  let cropTimeHours = 0; // store time for countdown
+  let cropTimeHours = 0; 
   let countdownInterval;
 
   function updateInputFields() {
@@ -176,15 +195,23 @@
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
       countdownElement.textContent = `⏱ Crop Ready In: ${h}h ${m}m ${s}s`;
+
+      // Flash red if less than 1 minute
+      if (totalSeconds <= 60) {
+        countdownElement.style.color = totalSeconds % 2 === 0 ? '#ff4c4c' : '#ffffff';
+      } else {
+        countdownElement.style.color = '#ff4c4c';
+      }
+
       totalSeconds--;
       if (totalSeconds < 0) {
         clearInterval(countdownInterval);
         countdownElement.textContent = '✅ Ready!';
+        countdownElement.style.color = '#1db954';
       }
     }, 1000);
   }
 
-  // initialize inputs
   updateInputFields();
 </script>
 
