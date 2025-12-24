@@ -96,4 +96,168 @@
     height: 100%;
     width: 0%;
     background: linear-gradient(to right, #1db954, #ffdd00, #ff4c4c);
-    border-ra
+    border-radius: 10px;
+    transition: width 0.5s linear;
+  }
+
+  .footer { margin-top: 12px; text-align: center; font-size: 13px; opacity: 0.6; }
+
+  .tips { background: #2a2a2a; padding: 12px; border-radius: 12px; margin-top: 20px; font-size: 14px; }
+  .tips h3 { margin: 0 0 6px 0; color: #1db954; font-size: 16px; }
+  .tips ul { padding-left: 20px; margin: 0; }
+  .tips li { margin-bottom: 5px; }
+
+  @media (max-width: 600px) {
+    .calculator { padding: 16px; }
+    h2 { font-size: 26px; }
+    .subtitle { font-size: 14px; }
+    select, input { font-size: 14px; padding: 8px; }
+    button { font-size: 16px; padding: 10px; }
+    .result, .timer-text { font-size: 18px; }
+    .tips { font-size: 13px; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <h2>Blockspin Farming Calculator</h2>
+  <div class="subtitle">6 Dim Pots • Roblox Farming</div>
+
+  <label>Crop</label>
+  <select id="crop" onchange="updateInputFields()">
+    <option value="tomatoes">🍅 Tomatoes</option>
+    <option value="corn">🌽 Corn</option>
+    <option value="sunflowers">🌻 Sunflowers</option>
+  </select>
+
+  <label id="time-label">Time Farmed</label>
+  <div class="time-inputs" id="time-inputs"></div>
+
+  <button id="calculateBtn" onclick="calculate()">CALCULATE</button>
+  <button id="startTimerBtn" onclick="startCountdown()">START TIMER</button>
+
+  <div class="result" id="result">Profit: —</div>
+
+  <div class="timer-container">
+    <div class="timer-text" id="countdown">⏱ Next Harvest In: —</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="tips">
+    <h3>💡 Tips & Tricks</h3>
+    <ul>
+      <li>Tomatoes are more profitable if planted with premium soil.</li>
+      <li>Corn is best used if you want to fight or take a break for a little.</li>
+      <li>Sunflowers make the most money if you farm the entire time.</li>
+      <li>Diamond pots are most beneficial when used with sunflowers.</li>
+    </ul>
+  </div>
+
+  <div class="footer">6 Dim Pots Only</div>
+</div>
+
+<script>
+let cropTimeHours = 0;
+let countdownInterval;
+let totalSecondsGlobal = 0;
+let cycleSeconds = 0;
+
+function updateInputFields() {
+  const crop = document.getElementById('crop').value;
+  const label = document.getElementById('time-label');
+  const inputs = document.getElementById('time-inputs');
+
+  if (crop === 'tomatoes') {
+    label.textContent = 'Days Farmed (whole numbers only)';
+    inputs.innerHTML = `<input type="number" id="days" placeholder="Days" min="1" step="1">`;
+  } else if (crop === 'corn') {
+    label.textContent = 'Hours Farmed (whole numbers only)';
+    inputs.innerHTML = `<input type="number" id="hours" placeholder="Hours" min="1" step="1">`;
+  } else if (crop === 'sunflowers') {
+    label.textContent = 'Time Farmed (minutes in multiples of 10)';
+    inputs.innerHTML = `
+      <input type="number" id="hours" placeholder="Hours" min="0" step="1">
+      <input type="number" id="minutes" placeholder="Minutes (10,20,30…)" min="0" max="50" step="10">
+    `;
+  }
+  document.getElementById('countdown').textContent = '⏱ Next Harvest In: —';
+  document.getElementById('progressFill').style.width = '0%';
+}
+
+function calculate() {
+  const crop = document.getElementById('crop').value;
+  const result = document.getElementById('result');
+  let totalHours = 0;
+
+  if (crop === 'tomatoes') {
+    const days = parseInt(document.getElementById('days').value, 10);
+    if (!days || days < 1) { result.textContent = 'Enter valid whole days'; return; }
+    totalHours = days * 24;
+    cycleSeconds = 24 * 3600;
+  } else if (crop === 'corn') {
+    const hours = parseInt(document.getElementById('hours').value, 10);
+    if (!hours || hours < 1) { result.textContent = 'Enter valid hours'; return; }
+    totalHours = hours;
+    cycleSeconds = 3600;
+  } else if (crop === 'sunflowers') {
+    const hours = parseInt(document.getElementById('hours').value, 10) || 0;
+    const minutes = parseInt(document.getElementById('minutes').value, 10) || 0;
+    if (minutes % 10 !== 0) { result.textContent = 'Minutes must be multiples of 10'; return; }
+    if (hours === 0 && minutes < 10) { result.textContent = 'Enter at least 10 minutes'; return; }
+    totalHours = hours + minutes / 60;
+    cycleSeconds = 10 * 60; // 10 minutes per harvest
+  }
+
+  let profit = 0;
+  if (crop === 'tomatoes') profit = (199200 / 24) * totalHours;
+  else if (crop === 'corn') profit = 45450 * totalHours;
+  else if (crop === 'sunflowers') profit = 17268 * (totalHours * 6);
+
+  cropTimeHours = totalHours;
+  totalSecondsGlobal = totalHours * 3600;
+
+  result.textContent = `Profit: ${Math.floor(profit).toLocaleString()}`;
+  document.getElementById('countdown').textContent = '⏱ Next Harvest In: —';
+  document.getElementById('progressFill').style.width = '0%';
+}
+
+function startCountdown() {
+  if (cycleSeconds <= 0) return;
+  let remaining = cycleSeconds;
+  const countdownElement = document.getElementById('countdown');
+  const progressFill = document.getElementById('progressFill');
+  clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    const h = Math.floor(remaining / 3600);
+    const m = Math.floor((remaining % 3600) / 60);
+    const s = remaining % 60;
+    countdownElement.textContent = `⏱ Next Harvest In: ${h}h ${m}m ${s}s`;
+
+    const percent = ((cycleSeconds - remaining) / cycleSeconds) * 100;
+    progressFill.style.width = `${percent}%`;
+
+    if (remaining <= 60) {
+      countdownElement.style.color = remaining % 2 === 0 ? '#ff4c4c' : '#ffffff';
+    } else {
+      countdownElement.style.color = '#ff4c4c';
+    }
+
+    remaining--;
+    if (remaining < 0) {
+      clearInterval(countdownInterval);
+      countdownElement.textContent = '✅ Harvest Ready!';
+      countdownElement.style.color = '#1db954';
+      progressFill.style.width = '100%';
+    }
+  }, 1000);
+}
+
+updateInputFields();
+</script>
+
+</body>
+</html>
