@@ -31,18 +31,6 @@
       box-shadow: 0 0 0 2px #1db954;
     }
 
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
-
-    .logo img {
-      width: 70px;
-      height: 70px;
-      border-radius: 12px;
-    }
-
     h2 {
       text-align: center;
       margin-bottom: 6px;
@@ -123,32 +111,19 @@
 
 <div class="calculator">
 
-  <!-- Blockspin Logo -->
-<div class="logo">
-  <img 
-    src="assets/blockspin-logo.png" 
-    alt="Blockspin Logo" 
-    onerror="this.onerror=null; this.src='https://via.placeholder.com/70?text=Logo';"
-    width="70" 
-    height="70">
-</div>
-
-  </div>
-
   <h2>Blockspin Farming Calculator</h2>
   <div class="subtitle">6 Dim Pots • Roblox Farming</div>
 
   <label>Crop</label>
-  <select id="crop">
+  <select id="crop" onchange="updateInputFields()">
     <option value="tomatoes">🍅 Tomatoes</option>
     <option value="corn">🌽 Corn</option>
     <option value="sunflowers">🌻 Sunflowers</option>
   </select>
 
-  <label>Time Farmed</label>
-  <div class="time-inputs">
-    <input type="number" id="hours" placeholder="Hours" min="0" step="1">
-    <input type="number" id="minutes" placeholder="Minutes" min="0" max="59" step="1">
+  <label id="time-label">Time Farmed</label>
+  <div class="time-inputs" id="time-inputs">
+    <!-- Inputs inserted dynamically -->
   </div>
 
   <button onclick="calculate()">CALCULATE</button>
@@ -159,35 +134,79 @@
 </div>
 
 <script>
+  function updateInputFields() {
+    const crop = document.getElementById('crop').value;
+    const label = document.getElementById('time-label');
+    const inputs = document.getElementById('time-inputs');
+
+    if (crop === 'tomatoes') {
+      // Only whole days
+      label.textContent = 'Days Farmed (whole numbers only)';
+      inputs.innerHTML = `<input type="number" id="days" placeholder="Days" min="1" step="1">`;
+    } 
+    else if (crop === 'corn') {
+      // Only hours, no minutes
+      label.textContent = 'Hours Farmed (whole numbers only)';
+      inputs.innerHTML = `<input type="number" id="hours" placeholder="Hours" min="1" step="1">`;
+    } 
+    else if (crop === 'sunflowers') {
+      // Hours + minutes, minutes only in 10-minute intervals
+      label.textContent = 'Time Farmed (minutes in multiples of 10)';
+      inputs.innerHTML = `
+        <input type="number" id="hours" placeholder="Hours" min="0" step="1">
+        <input type="number" id="minutes" placeholder="Minutes (10,20,30…)" min="0" max="50" step="10">
+      `;
+    }
+  }
+
   function calculate() {
-    const crop = document.getElementById("crop").value;
-    const hours = parseFloat(document.getElementById("hours").value) || 0;
-    const minutes = parseFloat(document.getElementById("minutes").value) || 0;
-    const result = document.getElementById("result");
+    const crop = document.getElementById('crop').value;
+    const result = document.getElementById('result');
+    let totalHours = 0;
 
-    const totalHours = hours + (minutes / 60);
+    if (crop === 'tomatoes') {
+      const days = parseInt(document.getElementById('days').value, 10);
+      if (!days || days < 1) { 
+        result.textContent = 'Enter valid whole days (1,2,3...)'; 
+        return; 
+      }
+      totalHours = days * 24;
+    } 
+    else if (crop === 'corn') {
+      const hours = parseInt(document.getElementById('hours').value, 10);
+      if (!hours || hours < 1) { 
+        result.textContent = 'Enter valid whole hours'; 
+        return; 
+      }
+      totalHours = hours;
+    } 
+    else if (crop === 'sunflowers') {
+      const hours = parseInt(document.getElementById('hours').value, 10) || 0;
+      let minutes = parseInt(document.getElementById('minutes').value, 10) || 0;
 
-    if (totalHours <= 0) {
-      result.textContent = "Enter valid time";
-      return;
+      if (minutes % 10 !== 0) {
+        result.textContent = 'Minutes must be in multiples of 10 (10,20,30…)';
+        return;
+      }
+      if (hours === 0 && minutes < 10) {
+        result.textContent = 'Enter at least 10 minutes';
+        return;
+      }
+      totalHours = hours + (minutes / 60);
     }
 
     let profit = 0;
-
-    // 6 dim pots rates
-    if (crop === "tomatoes") {
-      profit = (199200 / 24) * totalHours;
-    } 
-    else if (crop === "corn") {
-      profit = 45450 * totalHours;
-    } 
-    else if (crop === "sunflowers") {
-      profit = 17268 * (totalHours * 6);
-    }
+    if (crop === 'tomatoes') profit = (199200 / 24) * totalHours;
+    else if (crop === 'corn') profit = 45450 * totalHours;
+    else if (crop === 'sunflowers') profit = 17268 * (totalHours * 6);
 
     result.textContent = `Profit: ${Math.floor(profit).toLocaleString()}`;
   }
+
+  // Initialize inputs on page load
+  updateInputFields();
 </script>
 
 </body>
 </html>
+
