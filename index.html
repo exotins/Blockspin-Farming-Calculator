@@ -2,115 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>6 Dim Pots Profit Calculator</title>
+  <title>Blockspin Farming Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     * {
       box-sizing: border-box;
+      font-family: "Arial Rounded MT Bold", Arial, sans-serif;
     }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
+      background: linear-gradient(180deg, #0b0b0b, #1a1a1a);
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 16px;
     }
 
     .calculator {
-      background: #1c1c1c;
-      padding: 20px;
-      border-radius: 14px;
       width: 100%;
       max-width: 380px;
+      background: #121212;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 0 0 2px #1db954;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .logo img {
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
     }
 
     h2 {
       text-align: center;
+      margin-bottom: 6px;
+      color: #1db954;
+      font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      opacity: 0.7;
       margin-bottom: 15px;
     }
 
     label {
       font-size: 14px;
+      margin-top: 12px;
+      display: block;
       opacity: 0.85;
     }
 
     select,
-    input,
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      background: #1f1f1f;
+      border: 2px solid #2a2a2a;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .time-inputs {
+      display: flex;
+      gap: 10px;
+    }
+
     button {
       width: 100%;
-      margin-top: 8px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-    }
-
-    select,
-    input {
-      background: #2a2a2a;
-      color: #fff;
-    }
-
-    button {
-      margin-top: 15px;
-      background: #4caf50;
-      color: #fff;
+      margin-top: 18px;
+      padding: 14px;
+      font-size: 17px;
       font-weight: bold;
+      border-radius: 12px;
+      border: none;
+      background: #1db954;
+      color: #000;
       cursor: pointer;
+      transition: transform 0.1s;
     }
 
     button:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
     .result {
       margin-top: 18px;
+      background: #1b1b1b;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
       font-size: 18px;
       font-weight: bold;
-      text-align: center;
+      color: #1db954;
     }
 
-    @media (max-width: 400px) {
-      h2 {
-        font-size: 20px;
-      }
+    .footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.5;
     }
   </style>
 </head>
 <body>
 
 <div class="calculator">
-  <h2>6 Dim Pots Calculator</h2>
+
+  <!-- Blockspin Logo -->
+  <div class="logo">
+    <!-- Replace blockspin-logo.png with your actual logo file -->
+    <img src="blockspin-logo.png" alt="Blockspin Logo">
+  </div>
+
+  <h2>Blockspin Farming Calculator</h2>
+  <div class="subtitle">6 Dim Pots • Roblox Farming</div>
 
   <label>Crop</label>
   <select id="crop">
-    <option value="tomatoes">Tomatoes</option>
-    <option value="corn">Corn</option>
-    <option value="sunflowers">Sunflowers</option>
+    <option value="tomatoes">🍅 Tomatoes</option>
+    <option value="corn">🌽 Corn</option>
+    <option value="sunflowers">🌻 Sunflowers</option>
   </select>
 
-  <label>Hours Farmed</label>
-  <input type="number" id="hours" placeholder="e.g. 2.5" min="0" step="0.1">
+  <label>Time Farmed</label>
+  <div class="time-inputs">
+    <input type="number" id="hours" placeholder="Hours" min="0" step="1">
+    <input type="number" id="minutes" placeholder="Minutes" min="0" max="59" step="1">
+  </div>
 
-  <button onclick="calculate()">Calculate Profit</button>
+  <button onclick="calculate()">CALCULATE</button>
 
-  <div class="result" id="result"></div>
+  <div class="result" id="result">Profit: —</div>
+
+  <div class="footer">6 Dim Pots Only</div>
 </div>
 
 <script>
   function calculate() {
     const crop = document.getElementById("crop").value;
-    const hours = parseFloat(document.getElementById("hours").value);
+    const hours = parseFloat(document.getElementById("hours").value) || 0;
+    const minutes = parseFloat(document.getElementById("minutes").value) || 0;
     const result = document.getElementById("result");
 
-    if (isNaN(hours) || hours <= 0) {
-      result.textContent = "Please enter valid hours.";
+    const totalHours = hours + (minutes / 60);
+
+    if (totalHours <= 0) {
+      result.textContent = "Enter valid time";
       return;
     }
 
@@ -118,13 +170,13 @@
 
     // 6 dim pots rates
     if (crop === "tomatoes") {
-      profit = (199200 / 24) * hours;
+      profit = (199200 / 24) * totalHours;
     } 
     else if (crop === "corn") {
-      profit = 45450 * hours;
+      profit = 45450 * totalHours;
     } 
     else if (crop === "sunflowers") {
-      profit = 17268 * (hours * 6); // 6 cycles per hour
+      profit = 17268 * (totalHours * 6);
     }
 
     result.textContent = `Profit: ${Math.floor(profit).toLocaleString()}`;
