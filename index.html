@@ -6,21 +6,237 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  * { box-sizing: border-box; font-family: "Arial Rounded MT Bold", Arial, sans-serif; }
-  body {
-    margin: 0;
-    background: linear-gradient(180deg, #1a1a1a, #0b0b0b);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #111, #000);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.calculator {
+  width: 95%;
+  max-width: 950px;
+  background: #1b1b1b;
+  border-radius: 20px;
+  padding: 18px 28px;
+  box-shadow: 0 0 15px #1db954, 0 0 20px #ff4c4c;
+}
+
+h2 {
+  text-align: center;
+  margin: 6px 0;
+  color: #1db954;
+  font-size: 32px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #ff4c4c;
+  margin-bottom: 16px;
+}
+
+label { margin-top: 10px; display: block; }
+
+select, input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  background: #2b2b2b;
+  border: 2px solid #3c3c3c;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+#calculateBtn { background: #1db954; color: #000; }
+#startTimerBtn { background: #ff4c4c; color: #fff; }
+
+.result {
+  margin-top: 12px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 20px;
+  color: #1db954;
+}
+
+.timer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 18px;
+  color: #ff4c4c;
+}
+
+.progress {
+  height: 16px;
+  background: #3c3c3c;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #1db954, #ffdd00, #ff4c4c);
+}
+
+.tips {
+  margin-top: 18px;
+  background: #2a2a2a;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+</style>
+</head>
+
+<body>
+<div class="calculator">
+
+<h2>Blockspin Farming Calculator</h2>
+<div class="subtitle">6 Diamond Pots • Corrected Math</div>
+
+<label>Crop</label>
+<select id="crop" onchange="updateInputs()">
+  <option value="tomatoes">🍅 Tomatoes</option>
+  <option value="corn">🌽 Corn</option>
+  <option value="sunflowers">🌻 Sunflowers</option>
+</select>
+
+<label id="timeLabel">Time</label>
+<div class="time-inputs" id="inputs"></div>
+
+<button id="calculateBtn" onclick="calculate()">CALCULATE</button>
+<button id="startTimerBtn" onclick="startTimer()">START TIMER</button>
+
+<div class="result" id="result">Profit: —</div>
+
+<div class="timer" id="timer">⏱ Next Harvest In: —</div>
+<div class="progress"><div class="progress-fill" id="bar"></div></div>
+
+<div class="tips">
+<b>Tips:</b>
+<ul>
+<li>Sunflowers only shine if you farm nonstop.</li>
+<li>Corn is perfect for AFK or combat breaks.</li>
+<li>Diamond pots are strongest on sunflowers.</li>
+</ul>
+</div>
+
+<div class="footer">All values include seed costs</div>
+</div>
+
+<script>
+let cycleSeconds = 0;
+let interval;
+
+function updateInputs() {
+  const crop = document.getElementById("crop").value;
+  const inputs = document.getElementById("inputs");
+  const label = document.getElementById("timeLabel");
+
+  if (crop === "tomatoes") {
+    label.textContent = "Days";
+    inputs.innerHTML = `<input id="days" type="number" min="1" step="1">`;
+    cycleSeconds = 86400;
+  } 
+  else if (crop === "corn") {
+    label.textContent = "Hours";
+    inputs.innerHTML = `<input id="hours" type="number" min="1" step="1">`;
+    cycleSeconds = 3600;
+  } 
+  else {
+    label.textContent = "Time";
+    inputs.innerHTML = `
+      <input id="hours" type="number" min="0" step="1" placeholder="Hours">
+      <input id="minutes" type="number" min="0" max="50" step="10" placeholder="Minutes">
+    `;
+    cycleSeconds = 600;
+  }
+}
+
+function calculate() {
+  const crop = document.getElementById("crop").value;
+  let hours = 0;
+
+  if (crop === "tomatoes") hours = document.getElementById("days").value * 24;
+  if (crop === "corn") hours = document.getElementById("hours").value;
+  if (crop === "sunflowers")
+    hours = (+document.getElementById("hours").value || 0) +
+            (+document.getElementById("minutes").value || 0) / 60;
+
+  let profit = 0;
+
+  if (crop === "sunflowers") {
+    const harvests = hours * 6;
+    profit = harvests * 9000;
   }
 
-  .calculator {
-    width: 95%;
-    max-width: 900px;
-    background: #1b1b1b;
-    border-radius: 20px;
-    padding: 18px 24px;
+  if (crop === "corn") {
+    const harvests = hours;
+    profit = harvests * 45750;
+  }
+
+  if (crop === "tomatoes") {
+    profit = (199200 / 24) * hours;
+  }
+
+  document.getElementById("result").textContent =
+    "Profit: " + Math.floor(profit).toLocaleString();
+}
+
+function startTimer() {
+  clearInterval(interval);
+  let remaining = cycleSeconds;
+  const bar = document.getElementById("bar");
+  const timer = document.getElementById("timer");
+
+  interval = setInterval(() => {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    timer.textContent = `⏱ Next Harvest In: ${m}m ${s}s`;
+    bar.style.width = `${100 - (remaining / cycleSeconds) * 100}%`;
+    remaining--;
+
+    if (remaining < 0) {
+      clearInterval(interval);
+      timer.textContent = "✅ Ready!";
+      bar.style.width = "100%";
+    }
+  }, 1000);
+}
+
+updateInputs();
+</script>
+</body>
+</html>
